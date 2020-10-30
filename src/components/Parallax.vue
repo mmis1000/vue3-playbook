@@ -1,5 +1,6 @@
 <template>
   <div class="parallax-container" ref="parallaxContainer" @scroll.passive="handleScroll">
+    <div ref="parallaxContainerRoof" />
     <ParallaxSticky
       :height="height"
       :width="width"
@@ -81,7 +82,7 @@ export default defineComponent({
     })
 
     const parallaxContainer = ref(null! as HTMLDivElement)
-
+    const parallaxContainerRoof = ref(null! as HTMLDivElement)
     const width = ref(0)
     const height = ref(0)
     const scroll = ref(0)
@@ -119,7 +120,11 @@ export default defineComponent({
       //   watcher = watchScroll()
       //   updateTimer()
       // }
-      scroll.value = parallaxContainer.value.scrollTop
+      // scroll.value = parallaxContainer.value.scrollTop
+      const outRect = parallaxContainer.value.getBoundingClientRect()
+      const rootRect = parallaxContainerRoof.value.getBoundingClientRect()
+      // console.log(parallaxContainer.value.scrollTop, -(rootRect.y - outRect.y))
+      scroll.value = -(rootRect.y - outRect.y)
     }
 
     const observer = new ResizeObserver((entrys) => {
@@ -146,6 +151,7 @@ export default defineComponent({
 
     return {
       parallaxContainer,
+      parallaxContainerRoof,
       childContexts,
       height,
       width,
