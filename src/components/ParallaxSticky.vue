@@ -91,10 +91,12 @@ export default defineComponent({
   height: 0;
   top: 0;
   z-index: 2;
+  contain: size layout;
 }
 ::v-slotted(.parallax-sticky-container) {
   overflow: hidden;
   will-change: transform;
+  contain: strict;
 }
 ::v-slotted(.parallax-sticky-cropper) {
   will-change: transform;
