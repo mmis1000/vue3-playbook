@@ -1,8 +1,27 @@
 <template>
   <div>
     <Parallax style="height: 100vh">
+      inline
       <template v-for="index in 10" :key="index">
-        <ParallaxChild style="height: 50%; position: relative;">
+        <ParallaxChild style="width: 10%; height: 10%; display: inline-block; vertical-align: middle">
+          <template v-slot:default="{ height, scroll }">
+            <div
+              :style="{
+                height: height + 'px',
+                background: index % 2 ? 'url(https://i.imgur.com/HKyMBF1.jpg)' : 'url(https://i.imgur.com/t9XlvvL.jpg)',
+                backgroundSize: '100% auto',
+                backgroundPosition: `${-scroll / 2}px ${scroll / 2}px`,
+                willChange: 'background-position',
+                color: 'blue' 
+              }"
+            >hhh<br>hhh<br>hhh<br>hhh<br>hhh<br></div>
+          </template>
+        </ParallaxChild>
+      </template>
+      Do work
+
+      <template v-for="index in 4" :key="index">
+        <ParallaxChild style="height: 50%">
           <template v-slot:default="{ height, scroll }">
             <div
               :style="{
@@ -16,7 +35,7 @@
             >hhh<br>hhh<br>hhh<br>hhh<br>hhh<br></div>
           </template>
         </ParallaxChild>
-        <ParallaxChild style="height: 50%; position: relative;">
+        <ParallaxChild style="height: 50%">
           <template v-slot:default="{ height, scroll }">
             <div
               :style="{
