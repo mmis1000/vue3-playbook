@@ -160,6 +160,6 @@ export default defineComponent({
 .parallax-container {
   overflow-x: hidden;
   overflow-y: auto;
-  /* will-change: scroll-position; */
+  will-change: scroll-position;
 }
 </style>
