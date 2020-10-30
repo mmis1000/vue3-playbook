@@ -4,6 +4,9 @@ import { defineComponent } from "vue"
 import type { PropType, VNode } from "vue"
 // eslint-disable-next-line no-unused-vars
 import type { ChildContext } from "./Parallax.vue"
+
+const PRELOAD_RANGE = 50
+
 export default defineComponent({
   props: {
     height: {
@@ -46,8 +49,8 @@ export default defineComponent({
 
     for (const ctx of this.childContexts) {
       const needShow =
-        ctx.top + ctx.height > this.scroll &&
-        ctx.top < this.scroll + ctx.parentContainerHeight
+        ctx.top + ctx.height + PRELOAD_RANGE > this.scroll &&
+        ctx.top < this.scroll + ctx.parentContainerHeight + PRELOAD_RANGE
 
       if (needShow) {
         const id = this.getId(ctx)
