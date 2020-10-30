@@ -57,7 +57,6 @@ export default defineComponent({
     })
 
     provide(templateRegisterKey, (ctx) => {
-      console.log('called parent')
       childContexts.push(ctx)
 
       const parentRect = parallaxContainer.value.getBoundingClientRect()
