@@ -42,7 +42,7 @@ export default {
   bottom: 0;
   overflow: auto;
   background: cadetblue;
-  padding: 56px 0 16px;
+  padding: 72px 0 16px;
   z-index: 10;
 }
 
