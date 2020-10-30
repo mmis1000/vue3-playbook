@@ -1,0 +1,58 @@
+jobs:
+  site-build:
+    docker:
+      - image: node:14.15.0-buster-slim
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apt-get update -y
+            apt-get install -y ca-certificates
+            npm ci
+      - run:
+          name: Site
+          command: npm run build
+      - persist_to_workspace:
+          root: ./
+          paths: dist
+  site-deploy:
+    docker:
+      - image: node:14.15.0-buster-slim
+    steps:
+      - checkout
+      - run:
+          name: Install system dependencies
+          command: |
+            apt-get update -y
+            apt-get install -y ca-certificates git
+      - attach_workspace:
+          at: ./
+      - run:
+          name: Install and configure dependencies
+          command: |
+            npm install -g --silent gh-pages@2.0.1
+            git config user.email "ci-build@mmis1000.me"
+            git config user.name "ci-build"
+      - add_ssh_keys:
+          fingerprints:
+            - "72:34:e5:53:f6:66:a1:5d:af:70:7e:97:69:c2:75:ab"
+      - run:
+          name: Keyscan Github (HACK)
+          command: |
+            mkdir -p ~/.ssh/
+            ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      - run:
+          name: Deploy site to gh-pages branch
+          command: gh-pages --dist dist --message "[skip ci] Updates"
+workflows:
+  version: 2
+  build:
+    jobs:
+      - site-build
+      - site-deploy:
+          requires:
+            - site-build
+          filters:
+            branches:
+              only: master
