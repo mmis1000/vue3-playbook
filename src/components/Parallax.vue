@@ -87,38 +87,39 @@ export default defineComponent({
     const scroll = ref(0)
 
 
-    let watcher: null | (() => void) = null
+    // let watcher: null | (() => void) = null
 
-    const watchScroll = () => {
-      let watcher: () => void, id: ReturnType<typeof requestAnimationFrame> = 0
-      id = requestAnimationFrame(watcher = () => {
-        scroll.value = parallaxContainer.value.scrollTop
-        id = requestAnimationFrame(watcher)
-      })
+    // const watchScroll = () => {
+    //   let watcher: () => void, id: ReturnType<typeof requestAnimationFrame> = 0
+    //   id = requestAnimationFrame(watcher = () => {
+    //     scroll.value = parallaxContainer.value.scrollTop
+    //     id = requestAnimationFrame(watcher)
+    //   })
 
-      return () => cancelAnimationFrame(id)
-    }
+    //   return () => cancelAnimationFrame(id)
+    // }
 
-    let stopTimer: ReturnType<typeof setTimeout> = 0
+    // let stopTimer: ReturnType<typeof setTimeout> = 0
 
     const handleScroll = () => {
-      const updateTimer = () => {
-        clearTimeout(stopTimer)
-        stopTimer = setTimeout(() => {
-          if (watcher) {
-            watcher()
-            watcher = null
-          }
-        }, 500)
-      }
+      // const updateTimer = () => {
+      //   clearTimeout(stopTimer)
+      //   stopTimer = setTimeout(() => {
+      //     if (watcher) {
+      //       watcher()
+      //       watcher = null
+      //     }
+      //   }, 500)
+      // }
 
-      if (watcher) {
-        updateTimer()
-      } else {
-        scroll.value = parallaxContainer.value.scrollTop
-        watcher = watchScroll()
-        updateTimer()
-      }
+      // if (watcher) {
+      //   updateTimer()
+      // } else {
+      //   scroll.value = parallaxContainer.value.scrollTop
+      //   watcher = watchScroll()
+      //   updateTimer()
+      // }
+      scroll.value = parallaxContainer.value.scrollTop
     }
 
     const observer = new ResizeObserver((entrys) => {
