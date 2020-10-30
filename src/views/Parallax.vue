@@ -10,6 +10,7 @@
                 background:'url(https://i.imgur.com/HKyMBF1.jpg)',
                 backgroundSize: '100% auto',
                 backgroundPosition: `${-scroll / 2}px ${scroll / 2}px`,
+                willChange: 'background-position',
                 color: 'blue' 
               }"
             >hhh<br>hhh<br>hhh<br>hhh<br>hhh<br></div>
@@ -23,6 +24,7 @@
                 background: 'url(https://i.imgur.com/t9XlvvL.jpg)',
                 backgroundSize: '100% auto',
                 backgroundPosition: `${scroll / 2}px ${scroll / 2}px`,
+                willChange: 'background-position',
               }"
             >aaa<br>aaa<br>aaa<br>aaa<br>aaa<br></div>
           </template>
