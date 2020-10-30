@@ -87,44 +87,47 @@ export default defineComponent({
     const height = ref(0)
     const scroll = ref(0)
 
-
-    // let watcher: null | (() => void) = null
-
-    // const watchScroll = () => {
-    //   let watcher: () => void, id: ReturnType<typeof requestAnimationFrame> = 0
-    //   id = requestAnimationFrame(watcher = () => {
-    //     scroll.value = parallaxContainer.value.scrollTop
-    //     id = requestAnimationFrame(watcher)
-    //   })
-
-    //   return () => cancelAnimationFrame(id)
-    // }
-
-    // let stopTimer: ReturnType<typeof setTimeout> = 0
-
-    const handleScroll = () => {
-      // const updateTimer = () => {
-      //   clearTimeout(stopTimer)
-      //   stopTimer = setTimeout(() => {
-      //     if (watcher) {
-      //       watcher()
-      //       watcher = null
-      //     }
-      //   }, 500)
-      // }
-
-      // if (watcher) {
-      //   updateTimer()
-      // } else {
-      //   scroll.value = parallaxContainer.value.scrollTop
-      //   watcher = watchScroll()
-      //   updateTimer()
-      // }
-      // scroll.value = parallaxContainer.value.scrollTop
+    const getRealScroll = () => {
       const outRect = parallaxContainer.value.getBoundingClientRect()
       const rootRect = parallaxContainerRoof.value.getBoundingClientRect()
-      // console.log(parallaxContainer.value.scrollTop, -(rootRect.y - outRect.y))
-      scroll.value = -(rootRect.y - outRect.y)
+      return -(rootRect.y - outRect.y)
+    }
+
+    let watcher: null | (() => void) = null
+
+    const watchScroll = () => {
+      let watcher: () => void, id: ReturnType<typeof requestAnimationFrame> = 0
+      id = requestAnimationFrame(watcher = () => {
+        const real = getRealScroll()
+        if (real != scroll.value) {
+          scroll.value = real;
+        }
+        id = requestAnimationFrame(watcher)
+      })
+
+      return () => cancelAnimationFrame(id)
+    }
+
+    let stopTimer: ReturnType<typeof setTimeout> = 0
+
+    const handleScroll = () => {
+      const updateTimer = () => {
+        clearTimeout(stopTimer)
+        stopTimer = setTimeout(() => {
+          if (watcher) {
+            watcher()
+            watcher = null
+          }
+        }, 500)
+      }
+
+      if (watcher) {
+        updateTimer()
+      } else {
+        scroll.value = getRealScroll()
+        watcher = watchScroll()
+        updateTimer()
+      }
     }
 
     const observer = new ResizeObserver((entrys) => {
