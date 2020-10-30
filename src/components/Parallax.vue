@@ -87,13 +87,6 @@ export default defineComponent({
     const height = ref(0)
     const scroll = ref(0)
 
-    const observer = new ResizeObserver((entrys) => {
-      for (const e of entrys) {
-        height.value = e.contentRect.height
-        width.value = e.contentRect.width
-        console.log(e)
-      }
-    })
 
     let watcher: null | (() => void) = null
 
@@ -129,12 +122,21 @@ export default defineComponent({
       }
     }
 
+    const observer = new ResizeObserver((entrys) => {
+      for (const e of entrys) {
+        height.value = e.contentRect.height
+        width.value = e.contentRect.width
+        for (const ctx of childContexts) {
+          ctx.parentContainerHeight = e.contentRect.height
+        }
+      }
+    })
+  
     onMounted(() => {
       height.value = parallaxContainer.value.clientHeight
       width.value = parallaxContainer.value.clientWidth
       scroll.value = parallaxContainer.value.scrollTop
       observer.observe(parallaxContainer.value)
-      console.log(observer, parallaxContainer.value)
     })
 
     onBeforeUnmount(() => {
@@ -157,6 +159,6 @@ export default defineComponent({
 .parallax-container {
   overflow-x: hidden;
   overflow-y: auto;
-  will-change: scroll-position;
+  /* will-change: scroll-position; */
 }
 </style>
