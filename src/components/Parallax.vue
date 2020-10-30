@@ -120,7 +120,6 @@ export default defineComponent({
       //   updateTimer()
       // }
       scroll.value = parallaxContainer.value.scrollTop
-      console.log('scroll', Date.now())
     }
 
     const observer = new ResizeObserver((entrys) => {
