@@ -1,14 +1,12 @@
 jobs:
   site-build:
     docker:
-      - image: node:14.15.0-buster-slim
+      - image: node:14.15.0-buster
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
-            apt-get update -y
-            apt-get install -y ca-certificates
             npm ci
       - run:
           name: Site
@@ -18,14 +16,9 @@ jobs:
           paths: dist
   site-deploy:
     docker:
-      - image: node:14.15.0-buster-slim
+      - image: node:14.15.0-buster
     steps:
       - checkout
-      - run:
-          name: Install system dependencies
-          command: |
-            apt-get update -y
-            apt-get install -y ca-certificates git
       - attach_workspace:
           at: ./
       - run:
