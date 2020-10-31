@@ -95,6 +95,7 @@ export default defineComponent({
   top: 0;
   z-index: 2;
   contain: size layout;
+  will-change: contents;
 }
 ::v-slotted(.parallax-sticky-container) {
   position: absolute;
