@@ -2,13 +2,6 @@
   <div
     ref="parallaxChildArea"
     class="parallax-child-area"
-    :style="{
-      '--container-height': context.parentContainerHeight + 'px',
-      '--height': context.height + 'px',
-      '--width': context.width + 'px',
-      '--left': context.left + 'px',
-      '--top': context.top + 'px'
-    }"
   />
 </template>
 <script lang="tsx">

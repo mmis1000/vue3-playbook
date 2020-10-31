@@ -18,7 +18,7 @@
       </ParallaxChild>
       Do work
 
-      <template v-for="index in 4" :key="index">
+      <template v-for="index in 100" :key="index">
         <ParallaxChild style="height: 50%">
           <template v-slot:default="{ height, scroll }">
             <div

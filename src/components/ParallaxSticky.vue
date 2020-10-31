@@ -3,26 +3,18 @@ import { defineComponent } from "vue"
 // eslint-disable-next-line no-unused-vars
 import type { PropType, VNode } from "vue"
 // eslint-disable-next-line no-unused-vars
-import type { ChildContext } from "./Parallax.vue"
+import type { ChildContext, ParentContext } from "./Parallax.vue"
 
 const PRELOAD_RANGE = 50
 
 export default defineComponent({
   props: {
-    height: {
-      type: Number,
-      required: true
-    },
-    width: {
-      type: Number,
-      required: true
-    },
-    scroll: {
-      type: Number,
-      required: true
-    },
     childContexts: {
       type: Array as PropType<ChildContext[]>,
+      required: true
+    },
+    parentContext: {
+      type: Object as PropType<ParentContext>,
       required: true
     }
   },
@@ -49,40 +41,43 @@ export default defineComponent({
 
     for (const ctx of this.childContexts) {
       const needShow =
-        ctx.top + ctx.height + PRELOAD_RANGE > this.scroll &&
-        ctx.top < this.scroll + ctx.parentContainerHeight + PRELOAD_RANGE
+        ctx.top + ctx.height + PRELOAD_RANGE > this.parentContext.scroll &&
+        ctx.top < this.parentContext.scroll + ctx.parentContainerHeight + PRELOAD_RANGE
 
       if (needShow) {
         const id = this.getId(ctx)
-        const res = ctx.template({ height: this.height, scroll: this.scroll })
+        const res = ctx.template({ height: this.parentContext.height, scroll: this.parentContext.scroll })
         result.push(
           <div
-            class="parallax-sticky-anchor"
+            class="parallax-sticky-container"
+            style={{
+              transform: `translateY(${ctx.top - this.parentContext.scroll}px) translateX(${ctx.left}px)`,
+              height: `${ctx.height}px`,
+              width: `${ctx.width}px`
+            }}
             key={ 'container-' + id }
           >
             <div
-              class="parallax-sticky-container"
+              class="parallax-sticky-cropper"
               style={{
-                transform: `translateY(${ctx.top - this.scroll}px) translateX(${ctx.left}px)`,
-                height: `${ctx.height}px`,
-                width: `${ctx.width}px`
+                transform: `translateY(${this.parentContext.scroll - ctx.top}px) translateX(${-ctx.left}px)`,
+                width: `${this.parentContext.width}px`
               }}
             >
-              <div
-                class="parallax-sticky-cropper"
-                style={{
-                  transform: `translateY(${this.scroll - ctx.top}px) translateX(${-ctx.left}px)`,
-                  width: `${this.width}px`
-                }}
-              >
-                { res }
-              </div>
+              { res }
             </div>
           </div>
         )
       }
     }
-    return result
+    return (
+      <div
+        class="parallax-sticky-anchor"
+        key="anchor"
+      >
+        { result }
+      </div>
+    )
   }
 })
 
@@ -97,6 +92,10 @@ export default defineComponent({
   contain: size layout;
 }
 ::v-slotted(.parallax-sticky-container) {
+  position: absolute;
+  top: 0;
+  left: 0;
+
   overflow: hidden;
   will-change: transform;
   contain: strict;

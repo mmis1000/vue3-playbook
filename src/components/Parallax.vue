@@ -2,9 +2,7 @@
   <div class="parallax-container" ref="parallaxContainer" @scroll.passive="handleScroll">
     <div class="parallax-container-root" ref="parallaxContainerRoot" />
     <ParallaxSticky
-      :height="height"
-      :width="width"
-      :scroll="scroll"
+      :parent-context="parentContext"
       :child-contexts="childContexts"
     />
     <slot/>
@@ -29,6 +27,11 @@ export type ChildContext = {
   width: number
 
   template: TemplateFn
+}
+export type ParentContext = {
+  height: number
+  width: number
+  scroll: number
 }
 export type TemplateRegisterFn = (fn: ChildContext) => (() => void)
 export const templateRegisterKey = Symbol('Key') as InjectionKey<TemplateRegisterFn>
@@ -83,9 +86,16 @@ export default defineComponent({
 
     const parallaxContainer = ref(null! as HTMLDivElement)
     const parallaxContainerRoot = ref(null! as HTMLDivElement)
-    const width = ref(0)
-    const height = ref(0)
-    const scroll = ref(0)
+
+    const parentContext: ParentContext = reactive({
+      width: 0,
+      height: 0,
+      scroll: 0
+    })
+
+    // const width = ref(0)
+    // const height = ref(0)
+    // const scroll = ref(0)
 
     const getRealScroll = () => {
       const outRect = parallaxContainer.value.getBoundingClientRect()
@@ -96,14 +106,20 @@ export default defineComponent({
     let watcher: null | (() => void) = null
 
     const watchScroll = () => {
-      let watcher: () => void, id: ReturnType<typeof requestAnimationFrame> = 0
-      id = requestAnimationFrame(watcher = () => {
+      let id: ReturnType<typeof requestAnimationFrame> = 0
+
+      const tick: () => void = function tick () {
+        'use strict'
         const real = getRealScroll()
-        if (real != scroll.value) {
-          scroll.value = real;
+
+        if (real != parentContext.scroll) {
+          parentContext.scroll = real;
         }
-        id = requestAnimationFrame(watcher)
-      })
+
+        id = requestAnimationFrame(tick)
+      }
+
+      id = requestAnimationFrame(tick)
 
       return () => cancelAnimationFrame(id)
     }
@@ -124,7 +140,7 @@ export default defineComponent({
       if (watcher) {
         updateTimer()
       } else {
-        scroll.value = getRealScroll()
+        parentContext.scroll = getRealScroll()
         watcher = watchScroll()
         updateTimer()
       }
@@ -132,8 +148,8 @@ export default defineComponent({
 
     const observer = new ResizeObserver((entrys) => {
       for (const e of entrys) {
-        height.value = e.contentRect.height
-        width.value = e.contentRect.width
+        parentContext.height = e.contentRect.height
+        parentContext.width = e.contentRect.width
         for (const ctx of childContexts) {
           ctx.parentContainerHeight = e.contentRect.height
         }
@@ -141,9 +157,9 @@ export default defineComponent({
     })
   
     onMounted(() => {
-      height.value = parallaxContainer.value.clientHeight
-      width.value = parallaxContainer.value.clientWidth
-      scroll.value = parallaxContainer.value.scrollTop
+      parentContext.height = parallaxContainer.value.clientHeight
+      parentContext.width = parallaxContainer.value.clientWidth
+      parentContext.scroll = parallaxContainer.value.scrollTop
       observer.observe(parallaxContainer.value)
     })
 
@@ -156,9 +172,7 @@ export default defineComponent({
       parallaxContainer,
       parallaxContainerRoot,
       childContexts,
-      height,
-      width,
-      scroll,
+      parentContext,
       handleScroll
     }
   },
