@@ -46,6 +46,7 @@
             >aaa<br>aaa<br>aaa<br>aaa<br>aaa<br></div>
           </template>
         </ParallaxChild>
+        <h1 v-if="index === 50">你沒看到我(X</h1>
       </template>
     </Parallax>
   </div>
