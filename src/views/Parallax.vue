@@ -18,8 +18,10 @@
       </ParallaxChild>
       Do work
 
+      <br>
+
       <template v-for="index in 100" :key="index">
-        <ParallaxChild style="height: 50%">
+        <ParallaxChild style="height: calc(100% / 3); width: calc(100% / 3); display: inline-block; vertical-align: middle">
           <template v-slot:default="{ height, scroll }">
             <div
               :style="{
@@ -33,7 +35,7 @@
             >hhh<br>hhh<br>hhh<br>hhh<br>hhh<br></div>
           </template>
         </ParallaxChild>
-        <ParallaxChild style="height: 50%">
+        <ParallaxChild style="height: calc(100% / 3); width: calc(100% / 3); display: inline-block; vertical-align: middle">
           <template v-slot:default="{ height, scroll }">
             <div
               :style="{
