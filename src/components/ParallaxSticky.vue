@@ -39,29 +39,34 @@ export default defineComponent({
   render () {
     const result: (VNode|JSX.Element)[] = []
 
+    const parentScroll = this.parentContext.scroll
+    const parentHeight = this.parentContext.height
+    const parentWidth = this.parentContext.width
+
     for (const ctx of this.childContexts) {
+      const { top, left, height, width } = ctx
       const needShow =
-        ctx.top + ctx.height + PRELOAD_RANGE > this.parentContext.scroll &&
-        ctx.top < this.parentContext.scroll + ctx.parentContainerHeight + PRELOAD_RANGE
+        top + height + PRELOAD_RANGE > parentScroll &&
+        top < parentScroll + parentHeight + PRELOAD_RANGE
 
       if (needShow) {
         const id = this.getId(ctx)
-        const res = ctx.template({ height: this.parentContext.height, scroll: this.parentContext.scroll })
+        const res = ctx.template({ height: parentHeight, scroll: parentScroll })
         result.push(
           <div
             class="parallax-sticky-container"
             style={{
-              transform: `translateY(${ctx.top - this.parentContext.scroll}px) translateX(${ctx.left}px)`,
-              height: `${ctx.height}px`,
-              width: `${ctx.width}px`
+              transform: `translateY(${top - parentScroll}px) translateX(${left}px)`,
+              height: `${height}px`,
+              width: `${width}px`
             }}
             key={ 'container-' + id }
           >
             <div
               class="parallax-sticky-cropper"
               style={{
-                transform: `translateY(${this.parentContext.scroll - ctx.top}px) translateX(${-ctx.left}px)`,
-                width: `${this.parentContext.width}px`
+                transform: `translateY(${parentScroll - top}px) translateX(${-left}px)`,
+                width: `${parentWidth}px`
               }}
             >
               { res }

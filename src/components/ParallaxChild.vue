@@ -17,7 +17,6 @@ export default defineComponent({
 
     const context: ChildContext = {
       element: null!,
-      parentContainerHeight: 0,
 
       top: 0,
       left: 0,

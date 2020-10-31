@@ -19,8 +19,6 @@ export type ChildContext = {
   /** child container */
   element: HTMLElement
 
-  parentContainerHeight: number
-
   top: number
   left: number
   height: number
@@ -66,8 +64,6 @@ export default defineComponent({
       const parentRect = parallaxContainer.value.getBoundingClientRect()
       const parentScroll = parallaxContainer.value.scrollTop
       const childRect = ctx.element.getBoundingClientRect()
-
-      ctx.parentContainerHeight = parallaxContainer.value.clientHeight
 
       ctx.top = childRect.y - parentRect.y + parentScroll
       ctx.left = childRect.x - parentRect.x
@@ -150,9 +146,6 @@ export default defineComponent({
       for (const e of entrys) {
         parentContext.height = e.contentRect.height
         parentContext.width = e.contentRect.width
-        for (const ctx of childContexts) {
-          ctx.parentContainerHeight = e.contentRect.height
-        }
       }
     })
   
