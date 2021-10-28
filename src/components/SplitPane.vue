@@ -345,7 +345,7 @@ export default defineComponent({
       )
     }
 
-    children.push(<div style={{ opacity: this.moving ?  '0' : '1' }}>
+    children.push(<div>
       {zones}
     </div>)
 
@@ -378,8 +378,8 @@ export default defineComponent({
   position: absolute;
   border: 1px solid grey;
   /* border-radius: 5px; */
-  /* transition-property: top left bottom right;
-  transition-duration: 0.5s; */
+  transition-property: top left bottom right;
+  transition-duration: 0.5s;
   padding: 5px;
   overflow: hidden;
 }

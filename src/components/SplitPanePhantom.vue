@@ -61,6 +61,6 @@ export default defineComponent({
   top: 2px;
   bottom: 2px;
   border-radius: 10px;
-  background: #444;
+  background: rgba(64, 64, 64, 0.5);
 }
 </style>

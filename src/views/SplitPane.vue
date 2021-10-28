@@ -1,13 +1,13 @@
 <template>
   <SplitPane style="height: 100vh" :zones="pane" :defaultSplit="defaultSplit">
-    <template v-slot:a> a </template>
-    <template v-slot:b> b </template>
-    <template v-slot:e> e </template>
-    <template v-slot:f> f </template>
-    <template v-slot:g> g </template>
-    <template v-slot:h> h </template>
-    <template v-slot:i> i </template>
-    <template v-slot:j> j </template>
+    <template v-slot:a> a {{ text }} </template>
+    <template v-slot:b> b {{ text }} </template>
+    <template v-slot:e> e {{ text }} </template>
+    <template v-slot:f> f {{ text }} </template>
+    <template v-slot:g> g {{ text }} </template>
+    <template v-slot:h> h {{ text }} </template>
+    <template v-slot:i> i {{ text }} </template>
+    <template v-slot:j> j {{ text }} </template>
   </SplitPane>
 </template>
 
@@ -92,6 +92,7 @@ export default defineComponent({
         "1": [0.8],
         "1,1": [0.8],
       },
+      text: '    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
     };
   },
 });
