@@ -4,6 +4,8 @@ import { computed, defineComponent, inject, PropType, reactive, Ref, ref } from 
 // eslint-disable-next-line no-unused-vars
 import { containerSizeKey, ResizeHandle } from './SplitPane.vue'
 
+const GUTTER = 10
+
 export default defineComponent({
   props: {
     handle: {
@@ -84,8 +86,8 @@ export default defineComponent({
         return {
           x: clamp(
             pointerEnd.x - pointerStart.x,
-            (props.handle.leftMin - props.handle.left) * containerSize.width,
-            (props.handle.leftMax - props.handle.left) * containerSize.width
+            (props.handle.leftMin - props.handle.left) * containerSize.width + GUTTER,
+            (props.handle.leftMax - props.handle.left) * containerSize.width - GUTTER
           ),
           y: 0
         }
@@ -94,8 +96,8 @@ export default defineComponent({
           x: 0,
           y: clamp(
             pointerEnd.y - pointerStart.y,
-            (props.handle.topMin - props.handle.top) * containerSize.height,
-            (props.handle.topMax - props.handle.top) * containerSize.height
+            (props.handle.topMin - props.handle.top) * containerSize.height + GUTTER,
+            (props.handle.topMax - props.handle.top) * containerSize.height - GUTTER
           )
         }
       }
@@ -152,7 +154,9 @@ export default defineComponent({
   opacity: 0;
   transition: opacity .5s;
 }
-
+.resize-horizontal.moving, .resize-vertical.moving {
+  z-index: 2;
+}
 .resize-horizontal.moving::after, .resize-vertical.moving::after {
   position: absolute;
   content: '';
