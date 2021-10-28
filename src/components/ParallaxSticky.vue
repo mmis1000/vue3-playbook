@@ -88,7 +88,7 @@ export default defineComponent({
 
 </script>
 <style scoped>
-::v-slotted(.parallax-sticky-anchor) {
+.parallax-sticky-anchor {
   position: -webkit-sticky;
   position: sticky;
   height: 0;
@@ -97,7 +97,7 @@ export default defineComponent({
   contain: size layout;
   will-change: contents;
 }
-::v-slotted(.parallax-sticky-container) {
+.parallax-sticky-container {
   position: absolute;
   top: 0;
   left: 0;
@@ -106,7 +106,7 @@ export default defineComponent({
   will-change: transform;
   contain: strict;
 }
-::v-slotted(.parallax-sticky-cropper) {
+.parallax-sticky-cropper {
   will-change: transform;
 }
 </style>
