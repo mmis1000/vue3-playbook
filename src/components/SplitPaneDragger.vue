@@ -12,9 +12,15 @@ export default defineComponent({
       type: Object as PropType<ResizeHandle>,
       required: true
     },
+    onStartMove: {
+      type: Function as PropType<(key: number[], value: number) => void>
+    },
+    onMove: {
+      type: Function as PropType<(key: number[], value: number) => void>
+    },
     onMoved: {
       type: Function as PropType<(key: number[], value: number) => void>
-    }
+    },
   },
   emits: ['moved'],
   setup (props) {
@@ -31,25 +37,7 @@ export default defineComponent({
       y: 0
     })
 
-    const onStart = (event: PointerEvent) => {
-      if (state.value === 'moving') return
-      state.value = 'moving'
-      id.value = event.pointerId
-      pointerStart.x = pointerEnd.x = event.x
-      pointerStart.y = pointerEnd.y = event.y
-    }
-
-    const onMove = (event: PointerEvent) => {
-      if (state.value === 'stopped') return
-      if (id.value !== event.pointerId) return
-      pointerEnd.x = event.x
-      pointerEnd.y = event.y
-    }
-
-    const onEnd = (event: PointerEvent) => {
-      if (state.value === 'stopped') return
-      if (id.value !== event.pointerId) return
-
+    const computePercentage = () => {
       const holder = props.handle.holder
       const holderSize = {
         width: containerSize.width * (holder.right - holder.left),
@@ -59,16 +47,51 @@ export default defineComponent({
         left: (props.handle.left - holder.left) / (holder.right - holder.left),
         top: (props.handle.top - holder.top) / (holder.bottom - holder.top),
       }
-      console.log(JSON.parse(JSON.stringify([props.handle, relativePosition.value, holderSize, containerSize, holder])))
-      props.onMoved?.(
-        props.handle.key,
-        props.handle.type === 'horizontal'
+      return props.handle.type === 'horizontal'
           ? relativePosition.value.x / holderSize.width + localePercent.left
           : relativePosition.value.y / holderSize.height + localePercent.top
+    }
+
+    const onElementStart = (event: PointerEvent) => {
+      if (state.value === 'moving') return
+      state.value = 'moving'
+      id.value = event.pointerId
+
+      pointerStart.x = pointerEnd.x = event.x
+      pointerStart.y = pointerEnd.y = event.y
+
+      props.onStartMove?.(
+        props.handle.key,
+        computePercentage()
       )
-      state.value = 'stopped'
+    }
+
+    const onElementMove = (event: PointerEvent) => {
+      if (state.value === 'stopped') return
+      if (id.value !== event.pointerId) return
+
       pointerEnd.x = event.x
       pointerEnd.y = event.y
+
+      props.onMove?.(
+        props.handle.key,
+        computePercentage()
+      )
+    }
+
+    const onElementEnd = (event: PointerEvent) => {
+      if (state.value === 'stopped') return
+      if (id.value !== event.pointerId) return
+
+      pointerEnd.x = event.x
+      pointerEnd.y = event.y
+
+      props.onMoved?.(
+        props.handle.key,
+        computePercentage()
+      )
+
+      state.value = 'stopped'
     }
 
     const clamp = (v: number, min: number, max: number) => {
@@ -105,9 +128,9 @@ export default defineComponent({
 
     return {
       state,
-      onStart,
-      onMove,
-      onEnd,
+      onElementStart,
+      onElementMove,
+      onElementEnd,
       relativePosition
     }
   },
@@ -119,9 +142,9 @@ export default defineComponent({
     if (this.handle.type === 'horizontal') {
       return <div
         class={['resize-horizontal', this.state]}
-        onPointerdown={this.onStart}
-        onPointermove={this.onMove}
-        onPointerup={this.onEnd}
+        onPointerdown={this.onElementStart}
+        onPointermove={this.onElementMove}
+        onPointerup={this.onElementEnd}
         style={{
           top: formatPercentage(this.handle.top),
           left: formatPercentage(this.handle.left),
@@ -132,9 +155,9 @@ export default defineComponent({
     } else {
       return <div
         class={['resize-vertical', this.state]}
-        onPointerdown={this.onStart}
-        onPointermove={this.onMove}
-        onPointerup={this.onEnd}
+        onPointerdown={this.onElementStart}
+        onPointermove={this.onElementMove}
+        onPointerup={this.onElementEnd}
         style={{
           top: formatPercentage(this.handle.top),
           left: formatPercentage(this.handle.left),
@@ -156,6 +179,7 @@ export default defineComponent({
 }
 .resize-horizontal.moving, .resize-vertical.moving {
   z-index: 2;
+  opacity: 0 !important;
 }
 .resize-horizontal.moving::after, .resize-vertical.moving::after {
   position: absolute;

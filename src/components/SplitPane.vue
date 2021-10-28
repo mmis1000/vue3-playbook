@@ -4,6 +4,8 @@ import { defineComponent, reactive, computed, ref, onMounted, provide, Injection
 // eslint-disable-next-line no-unused-vars
 import type { PropType } from "vue"
 import SplitPaneDragger from "./SplitPaneDragger.vue"
+import SplitPanePhantom from "./SplitPanePhantom.vue"
+
 interface AbstractZone {
   type: 'horizontal' | 'vertical' | 'content'
 }
@@ -37,7 +39,7 @@ interface Border {
   bottom: number
 }
 
-interface Zone extends Border {
+export interface Zone extends Border {
   name: string
 }
 
@@ -67,23 +69,10 @@ export interface ResizeHandleVertical extends AbstractResizeHandle {
 
 export type ResizeHandle = ResizeHandleHorizontal | ResizeHandleVertical
 
-// const collectNames = (zone: AnyZone): string[] => {
-//   const names:string[] = []
-
-//   switch (zone.type) {
-//     case 'horizontal':
-//     case 'vertical':
-//       for (zone of zone.zones) {
-//         names.push(...collectNames(zone))
-//       }
-//       break
-//     case 'content':
-//       names.push(zone.name)
-//       break
-//   }
-
-//   return names
-// }
+type SplitContainer = {
+  splits: Splits
+  getOrCreateSplit: (path: number[], count: number) => number[]
+}
 
 export const containerSizeKey = Symbol('containerSizeKey') as InjectionKey<{ width: number, height: number }>
 
@@ -135,26 +124,33 @@ export default defineComponent({
       }
     }
 
-    const splits = reactive(
-      props.defaultSplit
-        ? JSON.parse(JSON.stringify(props.defaultSplit))
-        : {} as Splits
-      )
+    const createSplit = (initialValue?: Splits | undefined): SplitContainer => {
+      const getContainer = (): SplitContainer => container
+      const container = reactive<SplitContainer>({
+        splits: 
+          initialValue
+            ? JSON.parse(JSON.stringify(initialValue))
+            : {},
+        getOrCreateSplit (path: number[], count: number) {
+          const pathStr = path.join(',')
 
-    const getOrCreateSplit = (path: number[], count: number) => {
-      const pathStr = path.join(',')
-
-      if (splits[pathStr]) {
-        return splits[pathStr]
-      } else {
-        const newSplit: Split = reactive([])
-        for (let i = 1; i < count; i++) {
-          newSplit.push(i / count)
+          if (getContainer().splits[pathStr]) {
+            return getContainer().splits[pathStr]
+          } else {
+            const newSplit: Split = reactive([])
+            for (let i = 1; i < count; i++) {
+              newSplit.push(i / count)
+            }
+            getContainer().splits[pathStr] = newSplit
+            return newSplit
+          }
         }
-        splits[pathStr] = newSplit
-        return newSplit
-      }
+      })
+
+      return container
     }
+
+    const splitData = createSplit(props.defaultSplit)
 
     const rootBorder: Border = {
       left: 0,
@@ -166,7 +162,8 @@ export default defineComponent({
     const getZones = (
       zone: AnyZone,
       zonePath: number[],
-      parentBorder: Border
+      parentBorder: Border,
+      splitContainer: SplitContainer
     ): { zones: Zone[], borderMap: Record<string, Border> } => {
       const zones: Zone[] = []
       const borderMap: Record<string, Border> = {}
@@ -176,10 +173,10 @@ export default defineComponent({
       switch (zone.type) {
         case 'horizontal':
         case 'vertical': {
-          const split = getOrCreateSplit(zonePath, zone.zones.length)
+          const split = splitContainer.getOrCreateSplit(zonePath, zone.zones.length)
           for (let [k, childZone] of zone.zones.entries()) {
             const childBorder = getBorder(parentBorder, split, zone.type, k)
-            const childInfo = getZones(childZone, [...zonePath, k], childBorder)
+            const childInfo = getZones(childZone, [...zonePath, k], childBorder, splitContainer)
             zones.push(...childInfo.zones)
             Object.assign(borderMap, childInfo.borderMap)
           }
@@ -200,8 +197,7 @@ export default defineComponent({
     }
 
     const zones = computed(() => {
-      const zoneInfo = getZones(props.zones, [], rootBorder)
-      return zoneInfo
+      return getZones(props.zones, [], rootBorder, splitData)
     })
 
     const getResizeHandles = (
@@ -282,16 +278,42 @@ export default defineComponent({
       resizeObserver.observe(rootElement.value!)
     })
 
+    const phantomSplitData = createSplit()
+    const phantomZones = computed(() => {
+      return getZones(props.zones, [], rootBorder, phantomSplitData)
+    })
+
+    const moving = ref(false)
+
+    const onStartMove = (key: number[], value: number) => {
+      const row = key.slice(0, key.length - 1).join(',')
+      const index = key[key.length - 1]
+      phantomSplitData.splits = JSON.parse(JSON.stringify(splitData.splits))
+      console.log(phantomSplitData.splits, splitData.splits)
+      phantomSplitData.splits[row][index] = value
+      moving.value = true
+    }
+    const onMove = (key: number[], value: number) => {
+      const row = key.slice(0, key.length - 1).join(',')
+      const index = key[key.length - 1]
+      phantomSplitData.splits[row][index] = value
+    }
     const onMoved = (key: number[], value: number) => {
       const row = key.slice(0, key.length - 1).join(',')
       const index = key[key.length - 1]
       console.log(row, index, value)
-      splits[row][index] = value
+      phantomSplitData.splits[row][index] = value
+      splitData.splits[row][index] = value
+      moving.value = false
     }
-
+    
     return {
+      onStartMove,
+      onMove,
       onMoved,
       rootElement,
+      moving,
+      phantomZones,
       mappedZones: zones,
       resizeHandles
     }
@@ -303,8 +325,9 @@ export default defineComponent({
       return String(v * 100) + '%'
     }
 
+    const zones: JSX.Element[] = []
     for (const zone of this.mappedZones.zones) {
-      children.push(
+      zones.push(
         <div
           key={zone.name}
           class='zone'
@@ -322,8 +345,16 @@ export default defineComponent({
       )
     }
 
+    children.push(<div style={{ opacity: this.moving ?  '0' : '1' }}>
+      {zones}
+    </div>)
+
+    children.push(<SplitPanePhantom style={{ display: this.moving ? 'block' : 'none' }} zones={this.phantomZones.zones} />)
+
     for (const handle of [...this.resizeHandles].reverse()) {
       children.push(<SplitPaneDragger
+        onStartMove={this.onStartMove}
+        onMove={this.onMove}
         onMoved={this.onMoved}
         key={handle.key.join(',')}
         handle={handle}
@@ -347,5 +378,9 @@ export default defineComponent({
   position: absolute;
   border: 1px solid grey;
   /* border-radius: 5px; */
+  /* transition-property: top left bottom right;
+  transition-duration: 0.5s; */
+  padding: 5px;
+  overflow: hidden;
 }
 </style>
