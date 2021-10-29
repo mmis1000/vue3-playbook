@@ -285,7 +285,6 @@ export default defineComponent({
       const row = key.slice(0, key.length - 1).join(',')
       const index = key[key.length - 1]
       phantomSplitData.splits = JSON.parse(JSON.stringify(splitData.splits))
-      console.log(phantomSplitData.splits, splitData.splits)
       phantomSplitData.splits[row][index] = value
       moving.value = true
     }
@@ -297,7 +296,6 @@ export default defineComponent({
     const onMoved = (key: number[], value: number) => {
       const row = key.slice(0, key.length - 1).join(',')
       const index = key[key.length - 1]
-      console.log(row, index, value)
       phantomSplitData.splits[row][index] = value
       splitData.splits[row][index] = value
       moving.value = false
