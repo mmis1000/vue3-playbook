@@ -421,7 +421,7 @@ export default defineComponent({
       {zones}
     </div>)
 
-    children.push(<SplitPanePhantom style={{ display: this.moving ? 'block' : 'none' }} zones={this.phantomZones.zones} />)
+    children.push(<SplitPanePhantom style={{ visibility: this.moving ? 'visible' : 'hidden' }} zones={this.phantomZones.zones} />)
 
     for (const handle of [...this.resizeHandles].reverse()) {
       children.push(<SplitPaneDragger
