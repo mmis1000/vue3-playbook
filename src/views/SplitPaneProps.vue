@@ -2,12 +2,12 @@
   <SplitPane style="height: 100vh" :zones="pane" :defaultSplit="defaultSplit">
     <template v-slot:a> a {{ text }} </template>
     <template v-slot:b> b {{ text }} </template>
+    <template v-slot:c> c {{ text }} </template>
+    <template v-slot:d> d {{ text }} </template>
     <template v-slot:e> e {{ text }} </template>
     <template v-slot:f> f {{ text }} </template>
     <template v-slot:g> g {{ text }} </template>
     <template v-slot:h> h {{ text }} </template>
-    <template v-slot:i> i {{ text }} </template>
-    <template v-slot:j> j {{ text }} </template>
   </SplitPane>
 </template>
 
@@ -42,25 +42,25 @@ export default defineComponent({
           zones: [
             {
               type: "content",
-              name: "e",
+              name: "c",
             },
             {
               type: "horizontal",
               zones: [
                 {
                   type: "content",
-                  name: "f",
+                  name: "d",
                 },
                 {
                   type: "vertical",
                   zones: [
                     {
                       type: "content",
-                      name: "i",
+                      name: "e",
                     },
                     {
                       type: "content",
-                      name: "j",
+                      name: "f",
                     },
                   ],
                 },

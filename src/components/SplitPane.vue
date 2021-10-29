@@ -1,10 +1,13 @@
 <script lang="tsx">
 // eslint-disable-next-line no-unused-vars
-import { defineComponent, reactive, computed, ref, onMounted } from "vue"
+import { defineComponent, reactive, computed, ref, onMounted, VNode, Comment } from "vue"
 // eslint-disable-next-line no-unused-vars
 import type { PropType } from "vue"
 import SplitPaneDragger from "./SplitPaneDragger.vue"
 import SplitPanePhantom from "./SplitPanePhantom.vue"
+import SplitPaneLayoutContentVue from "./SplitPaneLayoutContent.vue"
+import SplitPaneLayoutHoriVue from "./SplitPaneLayoutHori.vue"
+import SplitPaneLayoutVertVue from "./SplitPaneLayoutVert.vue"
 
 interface AbstractZone {
   type: 'horizontal' | 'vertical' | 'content'
@@ -77,14 +80,49 @@ type SplitContainer = {
 export default defineComponent({
   props: {
     zones: {
-      type: Object as PropType<AnyZone>,
-      required: true
+      type: Object as PropType<AnyZone>
     },
     defaultSplit: {
       type: Object as PropType<Splits>
     }
   },
-  setup(props) {
+  setup(props, ctx) {
+    const filterComment = (vNode: VNode) => {
+      return vNode.type != Comment
+    }
+    const map = (vNode: VNode): AnyZone => {
+      switch (vNode.type) {
+        case SplitPaneLayoutContentVue:
+          return {
+            type: 'content',
+            name: vNode.props?.name as string
+          }
+        case SplitPaneLayoutVertVue: 
+        case SplitPaneLayoutHoriVue: {
+          const children: VNode[] = Array.isArray(vNode.children)
+            ? vNode.children
+            : (vNode.children as any).default()
+          return {
+            type: vNode.type === SplitPaneLayoutHoriVue ? 'horizontal' : 'vertical',
+            zones: children.filter(filterComment).map(map) as any
+          }
+        }
+        default:
+          console.error(vNode.type)
+          throw new Error(`unknown type ${String(vNode.type)}`)
+      }
+    }
+
+    const layout = computed<AnyZone>(() => {
+      if (props.zones) {
+        return props.zones
+      }
+      const layoutVNode = ctx.slots.layout!().filter(filterComment)[0]
+      const layout = map(layoutVNode)
+      console.log(layout)
+      return layout
+    })
+
     const getBorder = (
       current: Border,
       split: Split,
@@ -195,7 +233,7 @@ export default defineComponent({
     }
 
     const zones = computed(() => {
-      return getZones(props.zones, [], rootBorder, splitData)
+      return getZones(layout.value, [], rootBorder, splitData)
     })
 
     const getResizeHandles = (
@@ -254,7 +292,7 @@ export default defineComponent({
     }
 
     const resizeHandles = computed(() => {
-      return getResizeHandles(props.zones, [])
+      return getResizeHandles(layout.value, [])
     })
 
     const rootElement = ref<HTMLDivElement>()
@@ -276,7 +314,7 @@ export default defineComponent({
 
     const phantomSplitData = createSplit()
     const phantomZones = computed(() => {
-      return getZones(props.zones, [], rootBorder, phantomSplitData)
+      return getZones(layout.value, [], rootBorder, phantomSplitData)
     })
 
     const moving = ref(false)

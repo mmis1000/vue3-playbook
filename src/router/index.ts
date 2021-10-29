@@ -27,14 +27,25 @@ export const routes = [
     }
   },
   {
-    path: '/split-pane',
-    name: 'split-pane',
+    path: '/split-pane-template',
+    name: 'split-pane-template',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "parallel" */ '../views/SplitPane.vue'),
+    component: () => import(/* webpackChunkName: "parallel" */ '../views/SplitPaneTemplate.vue'),
     meta: {
-      title: "Split Pane"
+      title: "Split Pane with template"
+    }
+  },
+  {
+    path: '/split-pane-props',
+    name: 'split-pane-props',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "parallel" */ '../views/SplitPaneProps.vue'),
+    meta: {
+      title: "Split Pane with props"
     }
   }
 ]
