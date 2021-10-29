@@ -119,7 +119,6 @@ export default defineComponent({
       }
       const layoutVNode = ctx.slots.layout!().filter(filterComment)[0]
       const layout = map(layoutVNode)
-      console.log(layout)
       return layout
     })
 
@@ -171,6 +170,20 @@ export default defineComponent({
           const pathStr = path.join(',')
 
           if (getContainer().splits[pathStr]) {
+            const splits = getContainer().splits[pathStr]
+            // validate split
+            if (splits.length !== count - 1) {
+              console.warn(`invalid split ${splits.join(',')} for path ${path.join(',')}`)
+
+              const newSplit = [...splits]
+              newSplit.length = count - 1
+
+              for (let i = 0; i < count - 1; i++) {
+                newSplit[i] = newSplit[i] ?? 1
+              }
+
+              getContainer().splits[pathStr] = newSplit
+            }
             return getContainer().splits[pathStr]
           } else {
             const newSplit: Split = reactive([])
