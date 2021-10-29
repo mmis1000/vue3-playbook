@@ -29,6 +29,7 @@ export default defineComponent({
   emits: ['moved'],
   setup (props) {
     const state = ref<'moving' | 'stopped'>('stopped')
+    const hasMouse = ref(false)
     const id = ref<number>(-1)
 
     const pointerStart = reactive({
@@ -57,6 +58,8 @@ export default defineComponent({
     }
 
     const onElementStart = (event: PointerEvent) => {
+      if (event.pointerType === 'mouse') hasMouse.value = true
+
       if (state.value === 'moving') return
       state.value = 'moving'
       id.value = event.pointerId
@@ -71,6 +74,8 @@ export default defineComponent({
     }
 
     const onElementMove = (event: PointerEvent) => {
+      if (event.pointerType === 'mouse') hasMouse.value = true
+
       if (state.value === 'stopped') return
       if (id.value !== event.pointerId) return
 
@@ -84,6 +89,8 @@ export default defineComponent({
     }
 
     const onElementEnd = (event: PointerEvent) => {
+      hasMouse.value = false
+
       if (state.value === 'stopped') return
       if (id.value !== event.pointerId) return
 
@@ -129,6 +136,7 @@ export default defineComponent({
     })
 
     return {
+      hasMouse,
       state,
       onElementStart,
       onElementMove,
@@ -143,7 +151,7 @@ export default defineComponent({
 
     if (this.handle.type === 'horizontal') {
       return <div
-        class={['resize-horizontal', this.state]}
+        class={['resize-horizontal', this.state, this.hasMouse ? 'has-mouse': '']}
         onPointerdown={this.onElementStart}
         onPointermove={this.onElementMove}
         onPointerup={this.onElementEnd}
@@ -156,7 +164,7 @@ export default defineComponent({
       />
     } else {
       return <div
-        class={['resize-vertical', this.state]}
+        class={['resize-vertical', this.state, this.hasMouse ? 'has-mouse': '']}
         onPointerdown={this.onElementStart}
         onPointermove={this.onElementMove}
         onPointerup={this.onElementEnd}
@@ -210,7 +218,7 @@ export default defineComponent({
   cursor: ns-resize;
 }
 
-.resize-horizontal:hover, .resize-vertical:hover {
+.resize-horizontal.has-mouse:hover, .resize-vertical.has-mouse:hover {
   opacity: 1;
 }
 </style>
