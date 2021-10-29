@@ -196,10 +196,10 @@ export default defineComponent({
   position: absolute;
   content: '';
   display: block;
-  left: -100px;
-  right: -100px;
-  top: -100px;
-  bottom: -100px;
+  left: -1000px;
+  right: -1000px;
+  top: -1000px;
+  bottom: -1000px;
 }
 
 .resize-horizontal {
