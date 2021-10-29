@@ -178,6 +178,7 @@ export default defineComponent({
   background: #888;
   opacity: 0;
   transition: opacity .5s;
+  touch-action: none;
 }
 .resize-horizontal.moving, .resize-vertical.moving {
   z-index: 2;
