@@ -1,13 +1,17 @@
 <script lang="tsx">
 // eslint-disable-next-line no-unused-vars
-import { computed, defineComponent, inject, PropType, reactive, Ref, ref } from '@vue/runtime-core'
+import { computed, defineComponent, PropType, reactive, ref } from '@vue/runtime-core'
 // eslint-disable-next-line no-unused-vars
-import { containerSizeKey, ResizeHandle } from './SplitPane.vue'
+import { ResizeHandle } from './SplitPane.vue'
 
 const GUTTER = 10
 
 export default defineComponent({
   props: {
+    containerSize: {
+      type: Object as PropType<{ width: number, height: number }>,
+      required: true
+    },
     handle: {
       type: Object as PropType<ResizeHandle>,
       required: true
@@ -40,8 +44,8 @@ export default defineComponent({
     const computePercentage = () => {
       const holder = props.handle.holder
       const holderSize = {
-        width: containerSize.width * (holder.right - holder.left),
-        height: containerSize.height * (holder.bottom - holder.top),
+        width: props.containerSize.width * (holder.right - holder.left),
+        height: props.containerSize.height * (holder.bottom - holder.top),
       }
       const localePercent = {
         left: (props.handle.left - holder.left) / (holder.right - holder.left),
@@ -98,8 +102,6 @@ export default defineComponent({
       return Math.min(Math.max(v, min), max)
     }
 
-    const containerSize = inject(containerSizeKey)!
-
     const relativePosition = computed(() => {
       if (state.value !== 'moving') return {
         x: 0,
@@ -109,8 +111,8 @@ export default defineComponent({
         return {
           x: clamp(
             pointerEnd.x - pointerStart.x,
-            (props.handle.leftMin - props.handle.left) * containerSize.width + GUTTER,
-            (props.handle.leftMax - props.handle.left) * containerSize.width - GUTTER
+            (props.handle.leftMin - props.handle.left) * props.containerSize.width + GUTTER,
+            (props.handle.leftMax - props.handle.left) * props.containerSize.width - GUTTER
           ),
           y: 0
         }
@@ -119,8 +121,8 @@ export default defineComponent({
           x: 0,
           y: clamp(
             pointerEnd.y - pointerStart.y,
-            (props.handle.topMin - props.handle.top) * containerSize.height + GUTTER,
-            (props.handle.topMax - props.handle.top) * containerSize.height - GUTTER
+            (props.handle.topMin - props.handle.top) * props.containerSize.height + GUTTER,
+            (props.handle.topMax - props.handle.top) * props.containerSize.height - GUTTER
           )
         }
       }

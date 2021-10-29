@@ -1,6 +1,6 @@
 <script lang="tsx">
 // eslint-disable-next-line no-unused-vars
-import { defineComponent, reactive, computed, ref, onMounted, provide, InjectionKey } from "vue"
+import { defineComponent, reactive, computed, ref, onMounted } from "vue"
 // eslint-disable-next-line no-unused-vars
 import type { PropType } from "vue"
 import SplitPaneDragger from "./SplitPaneDragger.vue"
@@ -73,8 +73,6 @@ type SplitContainer = {
   splits: Splits
   getOrCreateSplit: (path: number[], count: number) => number[]
 }
-
-export const containerSizeKey = Symbol('containerSizeKey') as InjectionKey<{ width: number, height: number }>
 
 export default defineComponent({
   props: {
@@ -266,8 +264,6 @@ export default defineComponent({
       height: 0
     })
 
-    provide(containerSizeKey, containerSize)
-
     onMounted(() => {
       const resizeObserver = new ResizeObserver(entries => {
         for (const entry of entries) {
@@ -311,6 +307,7 @@ export default defineComponent({
       onStartMove,
       onMove,
       onMoved,
+      containerSize,
       rootElement,
       moving,
       phantomZones,
@@ -325,8 +322,33 @@ export default defineComponent({
       return String(v * 100) + '%'
     }
 
+    const computeTransform = (dimension: { width: number, height: number }, oldZone: Border, newZone: Border) => {
+      const oldCenter = {
+        x: (oldZone.left + oldZone.right) / 2 * dimension.width,
+        y: (oldZone.top + oldZone.bottom) / 2 * dimension.height
+      }
+
+      const newCenter = {
+        x: (newZone.left + newZone.right) / 2 * dimension.width,
+        y: (newZone.top + newZone.bottom) / 2 * dimension.height
+      }
+
+      const scale = {
+        x: (newZone.right - newZone.left) / (oldZone.right - oldZone.left),
+        y: (newZone.bottom - newZone.top) / (oldZone.bottom - oldZone.top)
+      }
+
+      return `translate(${newCenter.x - oldCenter.x}px, ${newCenter.y - oldCenter.y}px) scale(${scale.x}, ${scale.y})`
+    }
+
     const zones: JSX.Element[] = []
     for (const zone of this.mappedZones.zones) {
+      let transform
+      if (this.moving) {
+        transform = computeTransform(this.containerSize, zone, this.phantomZones.zones.find(it => it.name === zone.name)!)
+      } else {
+        transform = 'none'
+      }
       zones.push(
         <div
           key={zone.name}
@@ -336,6 +358,7 @@ export default defineComponent({
             left: formatPercentage(zone.left),
             bottom: formatPercentage(1 - zone.bottom),
             right: formatPercentage(1 - zone.right),
+            transform
           }}
         >
           {
@@ -345,7 +368,7 @@ export default defineComponent({
       )
     }
 
-    children.push(<div>
+    children.push(<div style={{ opacity: this.moving ? '0.5' : '1' }} >
       {zones}
     </div>)
 
@@ -353,6 +376,7 @@ export default defineComponent({
 
     for (const handle of [...this.resizeHandles].reverse()) {
       children.push(<SplitPaneDragger
+        containerSize={this.containerSize}
         onStartMove={this.onStartMove}
         onMove={this.onMove}
         onMoved={this.onMoved}
@@ -378,8 +402,8 @@ export default defineComponent({
   position: absolute;
   border: 1px solid grey;
   /* border-radius: 5px; */
-  transition-property: top left bottom right;
-  transition-duration: 0.5s;
+  /* transition-property: top left bottom right;
+  transition-duration: 0.5s; */
   padding: 5px;
   overflow: hidden;
 }
