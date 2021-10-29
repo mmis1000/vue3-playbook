@@ -351,6 +351,20 @@ export default defineComponent({
       splitData.splits[row][index] = value
       moving.value = false
     }
+    const snapLines = computed(() => {
+      const lines = {
+        vertical: [] as number[],
+        horizontal: [] as number []
+      }
+      for (let item of resizeHandles.value) {
+        if (item.type === 'horizontal') {
+          lines.vertical.push(item.left)
+        } else {
+          lines.horizontal.push(item.top)
+        }
+      }
+      return lines
+    })
     
     return {
       onStartMove,
@@ -359,6 +373,7 @@ export default defineComponent({
       containerSize,
       rootElement,
       moving,
+      snapLines,
       phantomZones,
       mappedZones: zones,
       resizeHandles
@@ -431,6 +446,7 @@ export default defineComponent({
         onMoved={this.onMoved}
         key={handle.key.join(',')}
         handle={handle}
+        snapLines={this.snapLines}
       />)
     }
 

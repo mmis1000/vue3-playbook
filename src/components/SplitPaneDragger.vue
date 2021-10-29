@@ -5,6 +5,7 @@ import { computed, defineComponent, PropType, reactive, ref } from '@vue/runtime
 import { ResizeHandle } from './SplitPane.vue'
 
 const GUTTER = 10
+const SNAP_RANGE = 10
 
 export default defineComponent({
   props: {
@@ -25,9 +26,12 @@ export default defineComponent({
     onMoved: {
       type: Function as PropType<(key: number[], value: number) => void>
     },
+    snapLines: {
+      type: Object as PropType<{ vertical: number[], horizontal: number[] }>
+    }
   },
   emits: ['moved'],
-  setup (props) {
+  setup(props) {
     const state = ref<'moving' | 'stopped'>('stopped')
     const hasMouse = ref(false)
     const id = ref<number>(-1)
@@ -42,6 +46,28 @@ export default defineComponent({
       y: 0
     })
 
+    const snapables = computed(() => {
+      if (state.value === 'stopped') {
+        return []
+      }
+
+      if (props.snapLines == null) {
+        return []
+      }
+
+      if (props.handle.type === 'horizontal') {
+        const hori = props.handle
+        return props.snapLines.horizontal.filter(it => {
+          return it > hori.leftMin && it < hori.leftMax
+        })
+      } else {
+        const vert = props.handle
+        return props.snapLines.horizontal.filter(it => {
+          return it > vert.topMin && it < vert.topMax
+        })
+      }
+    })
+
     const computePercentage = () => {
       const holder = props.handle.holder
       const holderSize = {
@@ -53,8 +79,8 @@ export default defineComponent({
         top: (props.handle.top - holder.top) / (holder.bottom - holder.top),
       }
       return props.handle.type === 'horizontal'
-          ? relativePosition.value.x / holderSize.width + localePercent.left
-          : relativePosition.value.y / holderSize.height + localePercent.top
+        ? relativePosition.value.x / holderSize.width + localePercent.left
+        : relativePosition.value.y / holderSize.height + localePercent.top
     }
 
     const onElementStart = (event: PointerEvent) => {
@@ -109,6 +135,29 @@ export default defineComponent({
       return Math.min(Math.max(v, min), max)
     }
 
+    const trySnapping = (val: number) => {
+      let recommend: number | undefined
+
+      if (props.handle.type === 'horizontal') {
+        const pos = val / props.containerSize.width + props.handle.left
+        recommend = snapables.value
+          .sort((x, y) => Math.abs(pos - x) - Math.abs(pos - y))
+          .find(it => Math.abs(it - pos) * props.containerSize.width < SNAP_RANGE)
+        if (recommend != null) {
+          recommend = (recommend - props.handle.left) * props.containerSize.width
+        }
+      } else {
+        const pos = val / props.containerSize.height + props.handle.top
+        recommend = snapables.value
+          .sort((x, y) => Math.abs(pos - x) - Math.abs(pos - y))
+          .find(it => Math.abs(it - pos) * props.containerSize.height < SNAP_RANGE)
+        if (recommend != null) {
+          recommend = (recommend - props.handle.top) * props.containerSize.height
+        }
+      }
+      return recommend ?? val
+    }
+
     const relativePosition = computed(() => {
       if (state.value !== 'moving') return {
         x: 0,
@@ -116,21 +165,21 @@ export default defineComponent({
       }
       if (props.handle.type === 'horizontal') {
         return {
-          x: clamp(
+          x: trySnapping(clamp(
             pointerEnd.x - pointerStart.x,
             (props.handle.leftMin - props.handle.left) * props.containerSize.width + GUTTER,
             (props.handle.leftMax - props.handle.left) * props.containerSize.width - GUTTER
-          ),
+          )),
           y: 0
         }
       } else {
         return {
           x: 0,
-          y: clamp(
+          y: trySnapping(clamp(
             pointerEnd.y - pointerStart.y,
             (props.handle.topMin - props.handle.top) * props.containerSize.height + GUTTER,
             (props.handle.topMax - props.handle.top) * props.containerSize.height - GUTTER
-          )
+          ))
         }
       }
     })
@@ -151,7 +200,7 @@ export default defineComponent({
 
     if (this.handle.type === 'horizontal') {
       return <div
-        class={['resize-horizontal', this.state, this.hasMouse ? 'has-mouse': '']}
+        class={['resize-horizontal', this.state, this.hasMouse ? 'has-mouse' : '']}
         onPointerdown={this.onElementStart}
         onPointermove={this.onElementMove}
         onPointerup={this.onElementEnd}
@@ -164,7 +213,7 @@ export default defineComponent({
       />
     } else {
       return <div
-        class={['resize-vertical', this.state, this.hasMouse ? 'has-mouse': '']}
+        class={['resize-vertical', this.state, this.hasMouse ? 'has-mouse' : '']}
         onPointerdown={this.onElementStart}
         onPointermove={this.onElementMove}
         onPointerup={this.onElementEnd}
@@ -181,20 +230,23 @@ export default defineComponent({
 </script>
 
 <style>
-.resize-horizontal, .resize-vertical {
+.resize-horizontal,
+.resize-vertical {
   position: absolute;
   background: #888;
   opacity: 0;
-  transition: opacity .5s;
+  transition: opacity 0.5s;
   touch-action: none;
 }
-.resize-horizontal.moving, .resize-vertical.moving {
+.resize-horizontal.moving,
+.resize-vertical.moving {
   z-index: 2;
   opacity: 0 !important;
 }
-.resize-horizontal.moving::after, .resize-vertical.moving::after {
+.resize-horizontal.moving::after,
+.resize-vertical.moving::after {
   position: absolute;
-  content: '';
+  content: "";
   display: block;
   left: -1000px;
   right: -1000px;
@@ -218,7 +270,8 @@ export default defineComponent({
   cursor: ns-resize;
 }
 
-.resize-horizontal.has-mouse:hover, .resize-vertical.has-mouse:hover {
+.resize-horizontal.has-mouse:hover,
+.resize-vertical.has-mouse:hover {
   opacity: 1;
 }
 </style>
