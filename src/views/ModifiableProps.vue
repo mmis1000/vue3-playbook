@@ -15,6 +15,11 @@ const defaultForm = () => ({
 
 type FormType = ReturnType<typeof defaultForm>
 
+const log: <T>(message: string, arg: T) => T = (message, arg) => {
+  console.log(message)
+  return arg
+}
+
 const Nested = defineComponent({
   emits: ['update:data'],
   props: {
@@ -23,11 +28,13 @@ const Nested = defineComponent({
       required: true
     }
   },
-  setup (props, { emit }) {
+  setup(props, { emit }) {
     const propsModel = useModifiableProps(props, emit)
-    return () => <div>
-      <input value={propsModel.data.d} onInput={ev => { propsModel.data.d = (ev.target as any).value } } />
-    </div>
+    return () => log('Nested Rendered', <div>
+      D: <input value={propsModel.data.d} onInput={ev => { propsModel.data.d = (ev.target as any).value }} />
+      <hr />
+      F: <input value={propsModel.data.e.f} onInput={ev => { propsModel.data.e.f = (ev.target as any).value }} />
+    </div>)
   }
 })
 
@@ -39,39 +46,38 @@ const Form = defineComponent({
       required: true
     }
   },
-  setup (props, { emit }) {
+  setup(props, { emit }) {
     const propsModel = useModifiableProps(props, emit)
 
-    return () => <div>
-      <input value={propsModel.data.a} onInput={ev => { propsModel.data.a = (ev.target as any).value } } />
+    return () => log('Form Rendered', <div>
+      A: <input value={propsModel.data.a} onInput={ev => { propsModel.data.a = (ev.target as any).value }} />
       <hr />
-      <input value={propsModel.data.b} onInput={ev => { propsModel.data.b = (ev.target as any).value } } />
+      B: <input value={propsModel.data.b} onInput={ev => { propsModel.data.b = (ev.target as any).value }} />
       <hr />
       <Nested data={propsModel.data.c.$original} onUpdate:data={ev => { propsModel.data.c.$original = ev }} />
-    </div>
+    </div>)
   }
 })
 
 export default defineComponent({
-  setup () {
+  setup() {
     const data = ref(defaultForm())
     watch(() => toRaw(data.value), (newV, oldV) => {
       console.log(
-        newV, oldV, 
-        newV === oldV,
-        newV.c.e === oldV.c.e
+        'newV', newV, 'oldV', oldV,
+        'newV === oldV', newV === oldV,
+        'newV.c.e === oldV.c.e', newV.c.e === oldV.c.e
       )
     })
-    return () => <div>
-      <pre>Data:
-{JSON.stringify(data.value, undefined, 4)}
+    return () => log('Page Rendered', <div>
+      <pre>Data: {
+      }{JSON.stringify(data.value, undefined, 4)}
       </pre>
       <Form data={data.value} onUpdate:data={ev => { data.value = ev }} />
-    </div>
+    </div>)
   }
 })
 </script>
 
 <style>
-
 </style>

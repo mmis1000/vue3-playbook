@@ -32,13 +32,19 @@ export function useModifiableProps<T>(
   return _useModifiableProps(props, emits)
 }
 
+const mappedProp = new WeakMap<any, any>()
+
 function _useModifiableProps<T>(
   props: T,
   emits: (...args: any[]) => void,
   current: any = props,
   pathRef: string[] | Ref<string[]> = []
 ): DecorateProps<T> {
-  return new Proxy({}, {
+  if (mappedProp.has(current)) {
+    return mappedProp.get(current)
+  }
+
+  const proxy = new Proxy({}, {
     get(target: any, key: any) {
       if (key === '$original') {
         return current;
@@ -88,4 +94,8 @@ function _useModifiableProps<T>(
       return true;
     },
   });
+
+  mappedProp.set(current, proxy)
+
+  return proxy
 }
