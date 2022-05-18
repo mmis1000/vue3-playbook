@@ -1,11 +1,25 @@
 import { unref, toRaw, reactive, Ref } from 'vue';
 
+type ObjectKeys<T extends object> =
+  {
+    [K in keyof T]: T[K] extends object ? K : never
+  }[keyof T]
+
+type NonObjectKeys<T extends object> =
+  {
+    [K in keyof T]: T[K] extends object ? never : K
+  }[keyof T]
+
 type DecorateProps<T> =
-  T extends object ? {
-    [key in keyof T]: DecorateProps<T[key]>
+  T extends object 
+  ? {
+    readonly [key in ObjectKeys<T>]: DecorateProps<T[key]>
+  } & {
+    [key in NonObjectKeys<T>]: DecorateProps<T[key]>
   } & {
     $original: T
-  } : T
+  } 
+  : T
 
 const updateWithPath: <T>(obj: T, path: string[], value: any) => T =
   (obj: any, path: string[], value: any) => {
