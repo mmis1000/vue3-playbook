@@ -24,9 +24,9 @@ const Nested = defineComponent({
     }
   },
   setup (props, { emit }) {
-    const modifiableProps = useModifiableProps(props, emit)
+    const propsModel = useModifiableProps(props, emit)
     return () => <div>
-      <input value={modifiableProps.data.d} onInput={ev => { modifiableProps.data.d = (ev.target as any).value } } />
+      <input value={propsModel.data.d} onInput={ev => { propsModel.data.d = (ev.target as any).value } } />
     </div>
   }
 })
@@ -40,14 +40,14 @@ const Form = defineComponent({
     }
   },
   setup (props, { emit }) {
-    const modifiableProps = useModifiableProps(props, emit)
+    const propsModel = useModifiableProps(props, emit)
 
     return () => <div>
-      <input value={modifiableProps.data.a} onInput={ev => { modifiableProps.data.a = (ev.target as any).value } } />
+      <input value={propsModel.data.a} onInput={ev => { propsModel.data.a = (ev.target as any).value } } />
       <hr />
-      <input value={modifiableProps.data.b} onInput={ev => { modifiableProps.data.b = (ev.target as any).value } } />
+      <input value={propsModel.data.b} onInput={ev => { propsModel.data.b = (ev.target as any).value } } />
       <hr />
-      <Nested data={modifiableProps.data.c.$original} onUpdate:data={ev => { modifiableProps.data.c.$original = ev }} />
+      <Nested data={propsModel.data.c.$original} onUpdate:data={ev => { propsModel.data.c.$original = ev }} />
     </div>
   }
 })
