@@ -1,6 +1,6 @@
 <script lang="tsx">
 // eslint-disable-next-line no-unused-vars
-import { computed, defineComponent, PropType, reactive, ref } from '@vue/runtime-core'
+import { computed, defineComponent, PropType, reactive, ref } from 'vue'
 // eslint-disable-next-line no-unused-vars
 import { ResizeHandle } from './SplitPane.vue'
 

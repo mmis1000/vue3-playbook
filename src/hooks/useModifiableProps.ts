@@ -90,8 +90,6 @@ function _useModifiableProps<T>(
         return true;
       }
 
-      const originalValue = current[key]
-
       if (
         (typeof current[key] === 'object' ||
           typeof current[key] === 'function') &&

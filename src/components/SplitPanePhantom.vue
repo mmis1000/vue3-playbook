@@ -1,6 +1,6 @@
 <script lang="tsx">
 // eslint-disable-next-line no-unused-vars
-import { defineComponent, PropType } from "@vue/runtime-core";
+import { defineComponent, PropType } from "vue";
 // eslint-disable-next-line no-unused-vars
 import { Zone } from "./SplitPane.vue";
 

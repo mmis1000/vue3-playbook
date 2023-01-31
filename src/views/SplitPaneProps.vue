@@ -14,7 +14,7 @@
 <script lang="ts">
 // eslint-disable-next-line no-unused-vars
 import SplitPane, { HorizontalPane } from "@/components/SplitPane.vue";
-import { defineComponent } from "@vue/runtime-core";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: {
