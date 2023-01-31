@@ -4,7 +4,7 @@ import { computed, defineComponent, PropType, reactive, ref } from 'vue'
 // eslint-disable-next-line no-unused-vars
 import { ResizeHandle } from './SplitPane.vue'
 
-const GUTTER = 10
+const GUTTER = 20
 const SNAP_RANGE = 10
 
 export default defineComponent({

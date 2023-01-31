@@ -480,7 +480,7 @@ export default defineComponent({
 }
 .zone-border {
   position: absolute;
-  border-radius: 5px;
+  /* border-radius: 5px; */
   border: 1px solid grey;
 }
 .zone {
@@ -490,6 +490,7 @@ export default defineComponent({
   /* transition-property: top left bottom right;
   transition-duration: 0.5s; */
   padding: 5px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 </style>
