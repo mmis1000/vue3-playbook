@@ -431,18 +431,20 @@ export default defineComponent({
       zones.push(
         <div
           key={zone.name}
-          class='zone'
+          class='zone-item-wrapper'
           style={{
-            top: `calc(${formatPercentage(zone.top)} + ${zoneBorderWidth}px)`,
-            left: `calc(${formatPercentage(zone.left)} + ${zoneBorderWidth}px)`,
-            bottom: `calc(${formatPercentage(1 - zone.bottom)} + ${zoneBorderWidth}px)`,
-            right: `calc(${formatPercentage(1 - zone.right)} + ${zoneBorderWidth}px)`,
+            top: formatPercentage(zone.top),
+            left: formatPercentage(zone.left),
+            bottom: formatPercentage(1 - zone.bottom),
+            right: formatPercentage(1 - zone.right),
             transform
           }}
         >
-          {
-            this.$slots[zone.name] ? this.$slots[zone.name]!() : undefined
-          }
+          <div class="zone">
+            {
+              this.$slots[zone.name] ? this.$slots[zone.name]!() : undefined
+            }
+          </div>
         </div>
       )
     }
@@ -485,14 +487,23 @@ export default defineComponent({
   /* border-radius: 5px; */
   border: 1px solid grey;
 }
-.zone {
+.zone-item-wrapper {
   position: absolute;
   /* border: 1px solid grey; */
-  border-radius: 5px;
   /* transition-property: top left bottom right;
   transition-duration: 0.5s; */
-  padding: 5px;
-  overflow-x: hidden;
-  overflow-y: auto;
+  /* padding: 5px; */
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: stretch;
+  align-items: stretch;
+  /* overflow-y: auto; */
+}
+.zone {
+  flex-grow: 1;
+  width: 0;
+  margin: 5px;
 }
 </style>
