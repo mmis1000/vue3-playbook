@@ -77,6 +77,8 @@ type SplitContainer = {
   getOrCreateSplit: (path: number[], count: number) => number[]
 }
 
+const zoneBorderWidth = 5;
+
 export default defineComponent({
   props: {
     zones: {
@@ -431,10 +433,10 @@ export default defineComponent({
           key={zone.name}
           class='zone'
           style={{
-            top: formatPercentage(zone.top),
-            left: formatPercentage(zone.left),
-            bottom: formatPercentage(1 - zone.bottom),
-            right: formatPercentage(1 - zone.right),
+            top: `calc(${formatPercentage(zone.top)} + ${zoneBorderWidth}px)`,
+            left: `calc(${formatPercentage(zone.left)} + ${zoneBorderWidth}px)`,
+            bottom: `calc(${formatPercentage(1 - zone.bottom)} + ${zoneBorderWidth}px)`,
+            right: `calc(${formatPercentage(1 - zone.right)} + ${zoneBorderWidth}px)`,
             transform
           }}
         >
@@ -486,7 +488,7 @@ export default defineComponent({
 .zone {
   position: absolute;
   /* border: 1px solid grey; */
-  /* border-radius: 5px; */
+  border-radius: 5px;
   /* transition-property: top left bottom right;
   transition-duration: 0.5s; */
   padding: 5px;
