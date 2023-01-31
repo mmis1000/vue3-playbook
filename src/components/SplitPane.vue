@@ -406,13 +406,26 @@ export default defineComponent({
     }
 
     const zones: JSX.Element[] = []
+    const zoneBorders: JSX.Element[] = []
     for (const zone of this.mappedZones.zones) {
       let transform
-      if (this.moving) {
-        transform = computeTransform(this.containerSize, zone, this.phantomZones.zones.find(it => it.name === zone.name)!)
+      const phantomZone = this.moving ? this.phantomZones.zones.find(it => it.name === zone.name)! : null
+      if (phantomZone) {
+        transform = computeTransform(this.containerSize, zone, phantomZone)
       } else {
         transform = 'none'
       }
+      zoneBorders.push(
+        <div
+          class='zone-border'
+          style={{
+            top: formatPercentage((phantomZone ?? zone).top),
+            left: formatPercentage((phantomZone ?? zone).left),
+            bottom: formatPercentage(1 - (phantomZone ?? zone).bottom),
+            right: formatPercentage(1 - (phantomZone ?? zone).right)
+          }}
+        />
+      )
       zones.push(
         <div
           key={zone.name}
@@ -431,6 +444,9 @@ export default defineComponent({
         </div>
       )
     }
+    children.push(<div>
+      {zoneBorders}
+    </div>)
 
     children.push(<div style={{ opacity: this.moving ? '0.5' : '1' }} >
       {zones}
@@ -462,10 +478,14 @@ export default defineComponent({
   position: relative;
   overflow: hidden;
 }
-
+.zone-border {
+  position: absolute;
+  border-radius: 5px;
+  border: 1px solid grey;
+}
 .zone {
   position: absolute;
-  border: 1px solid grey;
+  /* border: 1px solid grey; */
   /* border-radius: 5px; */
   /* transition-property: top left bottom right;
   transition-duration: 0.5s; */
