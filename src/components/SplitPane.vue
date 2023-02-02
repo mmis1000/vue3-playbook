@@ -77,8 +77,6 @@ type SplitContainer = {
   getOrCreateSplit: (path: number[], count: number) => number[]
 }
 
-const zoneBorderWidth = 5;
-
 export default defineComponent({
   props: {
     zones: {
